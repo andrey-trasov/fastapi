@@ -9,6 +9,7 @@ class TaskBase(BaseModel):
     description: str
     status: str
     date_of_creation: date = date.today()
+    users: int
 
 class TaskCreate(TaskBase):
     pass

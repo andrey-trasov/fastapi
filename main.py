@@ -1,20 +1,17 @@
 # main.py
+from fastapi import FastAPI
 from config.config_bd import engine, Base, database, SessionLocal
-from models.models import Task  # Импортируем модель
-from routers import task_router
-from schemas.task_schema import TaskCreate, TaskOut
-from services.task_service import create_task
+
+from routers import task_router, user_router, authorization_router
 
 # Создание всех таблиц в базе данных
 Base.metadata.create_all(bind=engine)
 
-
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-
 app = FastAPI()
 
 app.include_router(task_router.router)
+app.include_router(user_router.router)
+app.include_router(authorization_router.router)
 
 
 @app.on_event("startup")
@@ -32,9 +29,52 @@ def get_db():
     finally:
         db.close()
 
-# app.include_router(task_router.router)
+# авторизация
 
-# # Маршруты для читателей
-# @app.post("/readers/", response_model=TaskOut)
-# async def create_reader(reader: TaskCreate, db: Session = Depends(get_db)):
-#     return await create_task(db, reader)
+# from authx import AuthX, AuthXConfig, TokenPayload
+# from fastapi import Response
+#
+# config = AuthXConfig()
+# config.JWT_SECRET_KEY = "SECRET_KEY"
+# # config.JWT_ACCESS_COOKIE_NAME = "my_access_token"
+# config.JWT_TOKEN_LOCATION = ["cookies"]
+#
+# security = AuthX(config=config)
+
+
+# class UserLoginSchema(BaseModel):
+#     username: str
+#     password: str
+
+
+
+# def checking_the_data(db: Session, creds: UserLoginSchema):
+#     bd_creds = db.query(Users).filter(Users.username == creds.username).first()
+#     if not bd_creds is None and bd_creds.password == hash_password(creds.password):
+#         return True
+#     return False
+
+
+
+# @app.post('/login')
+# def login(creds: UserLoginSchema, response: Response, db: Session = Depends(get_db)):
+#     if checking_the_data(db, creds):
+#         access_token = security.create_access_token(creds.username)
+#         refresh_token = security.create_refresh_token(creds.username)
+#         response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, access_token)
+#         response.set_cookie(config.JWT_REFRESH_COOKIE_NAME, refresh_token)
+#         return {
+#             "access_token": access_token,
+#             "refresh_token": refresh_token
+#         }
+#     raise HTTPException(401, "Bad username/password")
+
+
+
+
+
+# @app.get("/protected/", dependencies=[Depends(security.access_token_required)])
+# def protected():
+#     return {"test": "YES"}
+
+

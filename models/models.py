@@ -1,5 +1,6 @@
 # Описание моделей базы данных
-from sqlalchemy import Column, Integer, Date, String
+from sqlalchemy import Column, Integer, Date, String, ForeignKey
+from sqlalchemy.orm import relationship
 
 from config.config_bd import Base
 
@@ -11,6 +12,7 @@ class Task(Base):
     description = Column(String, index=True)
     status = Column(String, index=True)
     date_of_creation = Column(Date)
+    users = Column(Integer, ForeignKey('users.id'))
 
 
 # from datetime import date
