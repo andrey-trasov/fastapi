@@ -1,0 +1,35 @@
+services:    #сервисы для запуска
+
+ db:    #контейнер с postgresql
+   image: postgres:latest    #образ на основании которого будем запускать контейнер
+   restart: on-failure
+   env_file:
+     - .env    #данные из .env будут попадать в контейнер
+   expose:
+     - "5432"    #порт закрыт для доступа из вне
+   volumes:
+     - pg_data:/var/lib/postgresql/data    #монтирует текущую директорию на контейнер
+   healthcheck:    #проверка postgresql
+     test: ["CMD-SHELL","-c","pg_isready -U $POSTGRES_USER"]
+     interval: 10s
+     retries: 5
+     timeout: 5s
+ app:    #контейнер с приложением
+   build: .    #указывает на текущую директорию, где находится Dockerfile
+   tty: true    #интерактивный режим
+   ports:
+     - "8000:8000"
+   environment:
+     - POETRY_VIRTUALENVS_CREATE=false
+   command: poetry run sh -c "uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+   depends_on:    #зависимости
+     db:
+       condition: service_healthy    #проверка на точ то db поднялась и готова к работе
+   volumes:
+     - .:/app
+   env_file:
+     - .env
+
+
+volumes:
+ pg_data:

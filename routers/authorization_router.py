@@ -6,8 +6,14 @@ from config.config_bd import SessionLocal
 from schemas.authorization_schema import UserLoginSchema
 from services.authorization_service import checking_the_data
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+# Настройка авторизации
 config = AuthXConfig()
-config.JWT_SECRET_KEY = "SECRET_KEY"
+config.JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 config.JWT_TOKEN_LOCATION = ["cookies"]
 
 security = AuthX(config=config)
